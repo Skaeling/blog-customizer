@@ -84,7 +84,6 @@ export const ArticleParamsForm = ({
   }, [isOpen]);
 
   // применение настроек по кнопке
-
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     onApply(formSettings);
@@ -129,7 +128,7 @@ export const ArticleParamsForm = ({
             onChange={changeBackgroundColor}
           ></Select>
           <Select
-            title="Ширина контента"
+            title="ширина контента"
             options={contentWidthArr}
             selected={formSettings.contentWidth}
             onChange={changeContentWidth}
