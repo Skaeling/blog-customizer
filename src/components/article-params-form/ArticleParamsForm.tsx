@@ -9,6 +9,7 @@ import {
 import { RadioGroup } from '@/ui/radio-group';
 import { Select } from '@/ui/select';
 import { Separator } from '@/ui/separator';
+import { Text } from '@/ui/text';
 import { clsx } from 'clsx';
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { ArrowButton } from 'src/ui/arrow-button';
@@ -23,48 +24,23 @@ type ArticleParamsFormProps = { onApply: (settings: ArticleStateType) => void };
 export const ArticleParamsForm = ({
   onApply,
 }: ArticleParamsFormProps): React.JSX.Element => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [formSettings, setFormSettings] =
     useState<ArticleStateType>(defaultArticleState);
   const sidebarContainerRef = useRef<HTMLDivElement>(null);
 
+  const createChangeHandler =
+    (key: keyof ArticleStateType) =>
+    (option: OptionType): void => {
+      setFormSettings((previousSettings) => ({ ...previousSettings, [key]: option }));
+    };
+
   const handleToggle = (): void => {
-    setIsOpen((previousIsOpen) => !previousIsOpen);
-  };
-
-  const changeFontFamily = (option: OptionType): void => {
-    setFormSettings((previousSettings) => ({
-      ...previousSettings,
-      fontFamilyOption: option,
-    }));
-  };
-
-  const changeFontColor = (option: OptionType): void => {
-    setFormSettings((previousSettings) => ({ ...previousSettings, fontColor: option }));
-  };
-  const changeBackgroundColor = (option: OptionType): void => {
-    setFormSettings((previousSettings) => ({
-      ...previousSettings,
-      backgroundColor: option,
-    }));
-  };
-
-  const changeContentWidth = (option: OptionType): void => {
-    setFormSettings((previousSettings) => ({
-      ...previousSettings,
-      contentWidth: option,
-    }));
-  };
-
-  const changeFontSize = (option: OptionType): void => {
-    setFormSettings((previousSettings) => ({
-      ...previousSettings,
-      fontSizeOption: option,
-    }));
+    setIsSidebarOpen((previousIsOpen) => !previousIsOpen);
   };
 
   useEffect(() => {
-    if (!isOpen) {
+    if (!isSidebarOpen) {
       return;
     }
     const handleOutsideClick = (e: MouseEvent): void => {
@@ -72,7 +48,7 @@ export const ArticleParamsForm = ({
       const container = sidebarContainerRef.current;
 
       if (container && e.target instanceof Node && !container.contains(e.target)) {
-        setIsOpen(false);
+        setIsSidebarOpen(false);
       }
     };
 
@@ -81,7 +57,7 @@ export const ArticleParamsForm = ({
     return (): void => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [isOpen]);
+  }, [isSidebarOpen]);
 
   // применение настроек по кнопке
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
@@ -97,42 +73,46 @@ export const ArticleParamsForm = ({
 
   return (
     <div ref={sidebarContainerRef}>
-      <ArrowButton isOpen={isOpen} onClick={handleToggle} />
-      <aside className={clsx(styles.container, { [styles.container_open]: isOpen })}>
+      <ArrowButton isOpen={isSidebarOpen} onClick={handleToggle} />
+      <aside
+        className={clsx(styles.container, { [styles.container_open]: isSidebarOpen })}
+      >
         <form className={styles.form} onSubmit={handleSubmit} onReset={handleReset}>
-          <h2 className={styles.form_title}>Задайте параметры</h2>
+          <Text as="h2" size={31} weight={800} uppercase>
+            Задайте параметры
+          </Text>
           <Select
             title="шрифт"
             options={fontFamilyOptions}
             selected={formSettings.fontFamilyOption}
-            onChange={changeFontFamily}
-          ></Select>
+            onChange={createChangeHandler('fontFamilyOption')}
+          />
           <RadioGroup
             title="размер шрифта"
             name="fontSize"
             options={fontSizeOptions}
             selected={formSettings.fontSizeOption}
-            onChange={changeFontSize}
-          ></RadioGroup>
+            onChange={createChangeHandler('fontSizeOption')}
+          />
           <Select
             title="цвет шрифта"
             options={fontColors}
             selected={formSettings.fontColor}
-            onChange={changeFontColor}
-          ></Select>
-          <Separator></Separator>
+            onChange={createChangeHandler('fontColor')}
+          />
+          <Separator />
           <Select
             title="цвет фона"
             options={backgroundColors}
             selected={formSettings.backgroundColor}
-            onChange={changeBackgroundColor}
-          ></Select>
+            onChange={createChangeHandler('backgroundColor')}
+          />
           <Select
             title="ширина контента"
             options={contentWidthArr}
             selected={formSettings.contentWidth}
-            onChange={changeContentWidth}
-          ></Select>
+            onChange={createChangeHandler('contentWidth')}
+          />
 
           <div className={styles.bottomContainer}>
             <Button title="Сбросить" htmlType="reset" type="clear" />
