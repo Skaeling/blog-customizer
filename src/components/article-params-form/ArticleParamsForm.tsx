@@ -6,12 +6,13 @@ import {
   contentWidthArr,
   fontSizeOptions,
 } from '@/constants/articleProps';
+import { useSidebarClose } from '@/hooks/useSidebarClose';
 import { RadioGroup } from '@/ui/radio-group';
 import { Select } from '@/ui/select';
 import { Separator } from '@/ui/separator';
 import { Text } from '@/ui/text';
 import { clsx } from 'clsx';
-import { useState, useRef, useEffect, type FormEvent } from 'react';
+import { useState, useRef, type FormEvent } from 'react';
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
 
@@ -39,25 +40,11 @@ export const ArticleParamsForm = ({
     setIsSidebarOpen((previousIsOpen) => !previousIsOpen);
   };
 
-  useEffect(() => {
-    if (!isSidebarOpen) {
-      return;
-    }
-    const handleOutsideClick = (e: MouseEvent): void => {
-      // при клике за пределами сайдбара - закрываем его, внутри - не реагируем
-      const container = sidebarContainerRef.current;
-
-      if (container && e.target instanceof Node && !container.contains(e.target)) {
-        setIsSidebarOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleOutsideClick);
-
-    return (): void => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, [isSidebarOpen]);
+  useSidebarClose({
+    isOpen: isSidebarOpen,
+    containerRef: sidebarContainerRef,
+    setIsOpen: setIsSidebarOpen,
+  });
 
   // применение настроек по кнопке
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
